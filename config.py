@@ -13,12 +13,14 @@ class Config(object):
     SECRET_KEY = 'legeyungriueingemmyturingemmyturingemmy'
 
     # ----------------------------------mysql的数据库的配置信息------------------------------------
-    SQLALCHEMY_DATABASE_URI = 'mysql://root：mysql@localhost/news'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@localhost/news'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # 配置状态保持当中的session信息存储的位置redis
     SESSION_TYPE = 'redis'
-    SESSION_REDIS = StrictRedis(host='127.0.0.1', port=6379)
+    REDIS_HOST='127.0.0.1'
+    REDIS_PORT=6379
+    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
     SESSION_USE_SINGER = True
     PERMANENT_SESSION_LIFETIME = 86400
 

@@ -3,12 +3,15 @@
 # coding=utf-8
 # doc           PyCharm
 from . import news
-from flask import session,render_template,current_app
+from flask import session, render_template, current_app
+
+
 
 @news.route('/')
 def index():
-    session['user']='turing'
+    session['user'] = 'turing'
     return render_template("news/index.html")
+
 
 # 项目加载logo图标
 @news.route('/favicon.ico')
@@ -18,3 +21,5 @@ def favico():
     # 2. 让浏览器车德系退出，重新启动
     # 3. 重新打开浏览器会有logo
     return current_app.send_static_file("news/favicon.ico")
+
+

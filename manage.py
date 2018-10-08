@@ -8,6 +8,9 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from app import create_app, db
 
+# 把模型导入其中
+from app import models
+
 # 调用工厂模式实例app
 app = create_app('develpoment')
 manage = Manager(app)
