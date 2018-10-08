@@ -25,7 +25,6 @@ Migrate(app,db)
 # 添加迁移命令给管理器
 manage.add_command("db",MigrateCommand)
 
-
 rb = redis.StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
 Session(app)
