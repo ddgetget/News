@@ -3,31 +3,21 @@
 # coding=utf-8
 # doc           PyCharm
 
-from flask import Flask, session
+from flask import session
 from config import Config
-from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
-from flask_session import Session
-
 # 用于数据迁移
 from flask_migrate import Migrate, MigrateCommand
+from app import create_app, db
 
-app = Flask(__name__)
-# session的设置将数据保存到redis的数据库当中
-
-db = SQLAlchemy(app)
-# 加载shiulihua管理器对象
-
-app.config.from_object(Config)
+# 调用工厂模式实例app
+app = create_app('development')
 manage = Manager(app)
+
 # 使用迁移框架
-Migrate(app,db)
+Migrate(app, db)
 # 添加迁移命令给管理器
-manage.add_command("db",MigrateCommand)
-
-rb = redis.StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
-
-Session(app)
+manage.add_command("db", MigrateCommand)
 
 
 @app.route('/index')
