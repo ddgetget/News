@@ -27,11 +27,9 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEBUG = True
 
-
 # 生产模式下的配置
 class ProductConfig(Config):
     DEBUG = False
-
 
 # 定义字典
 config_dict = {
