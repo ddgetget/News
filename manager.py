@@ -3,8 +3,6 @@
 # coding=utf-8
 # doc           PyCharm
 
-from flask import session
-from config import Config
 from flask_script import Manager
 # 用于数据迁移
 from flask_migrate import Migrate, MigrateCommand
@@ -20,12 +18,8 @@ Migrate(app, db)
 manage.add_command("db", MigrateCommand)
 
 
-@app.route('/index')
-def index():
-    session['user'] = 'turingemmy'
-    return "turing emmy is ok"
-
 
 if __name__ == '__main__':
     # app.run()
+    print(app.url_map)
     manage.run()

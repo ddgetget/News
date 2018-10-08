@@ -3,17 +3,15 @@
 # coding=utf-8
 # doc           PyCharm
 
-from flask import Blueprint
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-# 导入Confie类,导入字典
-from config import Config,config_dict
-from flask_session import Session
-
-# 导入日志
 import logging
-# 创建日志记录其，日志等级，输入日志等级和个数，大小。保存日志文件个数上限
 from logging.handlers import RotatingFileHandler
+
+from flask import Flask
+from flask_session import Session
+from flask_sqlalchemy import SQLAlchemy
+
+from config import config_dict
+
 # 设置日志的记录等级
 logging.basicConfig(level=logging.DEBUG) # 调试debug级
 # 创建日志记录器，指明日志保存的路径、每个日志文件的最大大小、保存的日志文件个数上限
@@ -34,4 +32,8 @@ def create_app(config__name):
     app.config.from_object(config_dict[config__name])
     db.init_app(app)
     Session(app)
+
+    # 导入蓝图对象
+    from app.news import news
+    app.register_blueprint(news)
     return app
