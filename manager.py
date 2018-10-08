@@ -11,7 +11,7 @@ from flask_migrate import Migrate, MigrateCommand
 from app import create_app, db
 
 # 调用工厂模式实例app
-app = create_app('development')
+app = create_app('develpoment')
 manage = Manager(app)
 
 # 使用迁移框架
