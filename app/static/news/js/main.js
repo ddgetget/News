@@ -172,6 +172,7 @@ var imageCodeId = ""
 function generateImageCode() {
     imageCodeId = generateUUID();
     var url = '/image_code?image_code_id=' + imageCodeId;
+    // 修改src的内容(属性)
     $('.get_pic_code').attr('src',url)
 }
 
