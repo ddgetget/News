@@ -250,3 +250,29 @@ def login():
     session['nick_name'] = user.nick_name
 
     return jsonify(errno=RET.OK, errmsg="ok")
+
+
+# -------------------------------------退出登陆-----------------------------------
+@passport.route('/logout')
+def logout():
+    """
+    退出登陆，清除redis的数据
+    :return:
+    """
+    session.pop('user_id',None)
+    session.pop('mobile',None)
+    session.pop('nick_name')
+    return jsonify(errno=RET.OK,errmsg='ok')
+
+
+
+
+
+
+
+
+
+
+
+
+

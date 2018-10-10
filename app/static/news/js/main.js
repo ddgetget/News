@@ -304,3 +304,13 @@ function generateUUID() {
     });
     return uuid;
 }
+
+
+
+// 退出登陆
+function logout() {
+    $.get('/logout',function(){
+        // 重新加载当前页面
+        location.reload();
+    })
+}
