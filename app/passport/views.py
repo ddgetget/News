@@ -102,7 +102,7 @@ def send_sms_code():
         return jsonify(errno=RET.DATAERR, errmsg='captcha code is wrong,please try again ')
     # 判断用户是否注册，不要在手机号检查玩判断，容易使外敌攻击
     try:
-        user = User.session.filter_by(mobile=mobile).first()
+        user = User.query.filter_by(mobile=mobile).first()
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DATAERR, errmsg='查询数据错误')
@@ -140,7 +140,7 @@ def send_sms_code():
 
 
 # ------------------------------------注册--------------------------------------
-@passport.route('passport/register', methods=["PPOST"])
+@passport.route('/register', methods=["POST"])
 def register():
     mobile = request.json.get("mobile")
     sms_code = request.json.get("sms_code")
@@ -162,7 +162,7 @@ def register():
         return jsonify(errno=RET.NODATA, errmsg='数据以过期')
     # 比较短验证码是否一致
     if real_sms_code != str(sms_code):
-        return jsonify(errnp=RET.DATAERR, errmsg='短信验证失败')
+        return jsonify(errno=RET.DATAERR, errmsg='短信验证失败')
     # 删除redis中存储的短信
     try:
         rb.delete('SMSCode_' + mobile)
@@ -174,7 +174,7 @@ def register():
     user.mobile = mobile
     user.nick_name = mobile
     # 注意：这里不用加密的原因是。在模型类当中,使用了property,赋值的结果是加密过后的哦，很厉害的哦
-    # user.password=passport
+    user.password=password
     try:
         db.session.add(user)
         db.session.commit()
