@@ -97,6 +97,7 @@ $(function () {
 
     // TODO 登录表单提交
     $(".login_form_con").submit(function (e) {
+        // 阻止表单自动提交
         e.preventDefault()
         var mobile = $(".login_form #mobile").val()
         var password = $(".login_form #password").val()
@@ -112,6 +113,23 @@ $(function () {
         }
 
         // 发起登录请求
+        var params = {
+            'mobile': mobile,
+            'password': password
+        };
+        $.ajax({
+            url: '/login',
+            type: 'post',
+            data: JSON.stringify(params),
+            contentType: "application/json",
+            success: function (response) {
+                if (response.errno == '0') {
+                    location.reload();
+                } else {
+                    alter(response.errmsg);
+                }
+            }
+        })
     })
 
 
