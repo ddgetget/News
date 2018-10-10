@@ -12,6 +12,8 @@ from . import passport
 import re, random
 from app.static.yuntongxun import sms
 
+from app.models import User
+
 """
 generating scheme
 send message
@@ -94,8 +96,17 @@ def send_sms_code():
     # compare real_image_code and code
     if real_image_code != image_code:
         return jsonify(errno=RET.DATAERR, errmsg='captcha code is wrong,please try again ')
+    # 判断用户是否注册，不要在手机号检查玩判断，容易使外敌攻击
+    try:
+        user = User.session.filter_by(mobile=mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DATAERR,errmsg='查询数据错误')
+    else:
+        if user is not None:
+            return jsonify(errnp=RET.DATAEXIST,errmsg="用户名已注册")
 
-    # build a number fo
+# build a number fo
     # --------------------------------get a number like XXXXXX------------
     # In[1]:    import random
     # In[2]:    '%06d' % random.randint(0, 999999)
