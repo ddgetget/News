@@ -42,8 +42,8 @@ def generate_image_code():
     # print(name)
     try:
         # IMAGE_CODE_REDIS_EXPIRES代表过期时间
-        rb.setex('Imagecode_' + image_code_id, constants.IMAGE_CODE_REDIS_EXPIRES, text)
-        print(image_code_id)
+        rb.setex('ImageCode_' + image_code_id, constants.IMAGE_CODE_REDIS_EXPIRES, text)
+        # print(image_code_id)
 
     except Exception as e:
         # 错误异常需要记录日志
@@ -59,7 +59,7 @@ def generate_image_code():
 
 
 @passport.route('/sms_code', methods=['POST'])
-def send_smd_code():
+def send_sms_code():
     """
     send chit message
     get parameter -->> check parameter -->> manager -->> return result
@@ -70,14 +70,15 @@ def send_smd_code():
     image_code_id = request.json.get('image_code_id')
 
     # is this data full?
-    if not all(mobile, image_code, image_code_id):
-        return jsonify(errno=RET.DATAERR, errmsg='parameter not full')
+    if not all([mobile, image_code, image_code_id]):
+        return jsonify(errno=RET.PARAMERR, errmsg='parameter not full')
     # is this mobile pattern ok?
     if not re.match(r'1[34567879]\d{9}$', mobile):
         return jsonify(errno=RET.DATAERR, errmsg='is mobile pattern ok?')
     # get data from database by redis
     try:
         real_image_code = rb.get('ImageCode_' + image_code_id)
+        # print(image_code_id, real_image_code)
     except Exception as e:
         # add Exception to log file
         current_app.logger.error(e)
@@ -100,7 +101,7 @@ def send_smd_code():
     # In[2]:    '%06d' % random.randint(0, 999999)
     # Out[2]:   '634485'
     # --------------------------------get a number like XXXXXX------------
-    sms_code = "%06d" % random.randint(0, 999999)
+    sms_code = "%03d" % random.randint(0, 999)
     try:
         rb.setex("SMSCode_" + mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
     except Exception as e:
@@ -112,7 +113,12 @@ def send_smd_code():
         cpp = sms.CCP()
         # ccp.send_template_sms('15313088696', ['249865', 2], 1)
         # the last data '1' is for free user
-        cpp.send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], 1)
+        results = cpp.send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], 1)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.THIRDERR, errmsg='the third package is wrong')
+    # 判断发送结果
+    if results == 0:
+        return jsonify(errno=RET.OK, errmsg='send is ok')
+    else:
+        return jsonify(errno=RET.THIRDERR, errmsg='send is wrong')

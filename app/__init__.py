@@ -29,6 +29,7 @@ logging.getLogger().addHandler(file_log_handler)
 # 先实例化sqlqlchemy程序实例
 db = SQLAlchemy()
 # 实例化redis对象,用来存储业务相关的
+# decode_responses是为了获取参数不是二进制，相关的只是可以查阅redisde 使用能手册
 rb = StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT,decode_responses=True)
 
 

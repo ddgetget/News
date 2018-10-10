@@ -9,7 +9,7 @@ from flask import session, render_template, current_app
 
 @news.route('/')
 def index():
-    session['user'] = 'turing'
+    # session['user'] = 'turing'
     return render_template("news/index.html")
 
 
