@@ -3,10 +3,12 @@
 # coding=utf-8
 # doc           PyCharm
 from . import news
-from flask import session, render_template, current_app,jsonify
-from app.models import User,Category
+from flask import session, render_template, current_app,jsonify,request
+from app.models import User,Category,News
 
 from app.static.util.response_code import RET
+
+from app.constants import *
 
 @news.route('/')
 def index():
@@ -38,14 +40,74 @@ def index():
     for category in categories:
         category_list.append(category.to_dict())
 
+    # 新闻点击排行
+    try:
+        news_list=News.query.order_by(News.clicks.desc()).limit(CLICK_RANK_MAX_NEWS)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg='查询新闻点击排行数据失败')
+
+    # 定义容器
+    news_click_list=[]
+    for news in news_list:
+        news_click_list.append(news)
+
+
+    # 判断数据查询结果
+    if not news:
+        return jsonify(errno=RET.DBERR,errmsg='无新闻排行')
 
     # 定义字典数据，返回模板
     data = {
-        'user_info': user.to_dict() if user else None
+        'user_info': user.to_dict() if user else None,
+        'category_list':category_list,
+        'news_click_list':news_click_list
     }
     return render_template("news/index.html", data=data)
 
+@news.route('/news_list')
+def get_news_list():
+    cid=request.args.get('cid',"1")
+    page = request.args.get('page', "1")
+    per_page = request.args.get('per_page', "10")
 
+    # 检查参数的数据类型
+    try:
+        cid,page,per_page=int(cid),int(page),int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(erron=RET.PARAMERR,errmsg='参数类型错误')
+
+    # 根据类型查询数据
+    filters=[]
+    if cid>1:
+        filters.append(News.category_id==cid)
+
+    # 根据新闻分类查询
+    try:
+        paginate = News.query.filter_by(*filters.order_by(News.create_time.desc()).paginate(page,per_page,False))
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg='查询新闻列表数据失败')
+
+    # 对分页对象获取分页后的数据
+    new_list =paginate.items
+    total_page =paginate.pages
+    current_page = paginate.page
+
+    # 遍历新闻列表
+    news_dict_list=[]
+    for news in new_list:
+        news_dict_list.append(news.to_dict())
+
+    # 返回数据
+    data={
+        'news_dict_list':news_dict_list,
+        'total_page':total_page,
+        'current_page':current_page
+    }
+
+    return jsonify(errno=RET.OK,errmsg='OK',data=data)
 # 项目加载logo图标
 @news.route('/favicon.ico')
 def favico():

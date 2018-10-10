@@ -53,6 +53,11 @@ def create_app(config__name):
         response.set_cookie('csrf_token',csrf_token)
         return response
 
+   # 添加过滤器给模板，必须给程序实例
+    from app.static.util.comments import index_filter
+    app.add_template_filter(index_filter,'index_filter')
+
+
     # 导入蓝图对象
     from app.news import news
     app.register_blueprint(news)
