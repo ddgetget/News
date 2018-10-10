@@ -102,18 +102,17 @@ def send_smd_code():
     # --------------------------------get a number like XXXXXX------------
     sms_code = "%06d" % random.randint(0, 999999)
     try:
-        rb.setex("SMSCode_"+mobile,constants.SMS_CODE_REDIS_EXPIRES,sms_code)
+        rb.setex("SMSCode_" + mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(errno=RET.DBERR,errmsg='save data is error')
+        return jsonify(errno=RET.DBERR, errmsg='save data is error')
 
     # transfer  yuntongxun interface to send chit message
     try:
-        cpp=sms.CCP()
+        cpp = sms.CCP()
         # ccp.send_template_sms('15313088696', ['249865', 2], 1)
         # the last data '1' is for free user
-        cpp.send_template_sms(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES],1)
+        cpp.send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES], 1)
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(errno=RET.THIRDERR,errmsg='the third package is wrong')
-    pass
+        return jsonify(errno=RET.THIRDERR, errmsg='the third package is wrong')

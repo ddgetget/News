@@ -206,32 +206,36 @@ function sendSMSCode() {
     $.ajax({
         url:'/sms_code',
         type:'post',
+        // 转换对象成json格式
         data:JSON.stringify(params),
         contentType:'application/json',
         success:function (response) {
-            if (response.errno == '0'){
-            //    实现倒计时
-                var num = 60;
+            if(response.errno==0){
+                // 如果发送成功
+                // 实现倒计时
+                var num =  60;
+                // 60s发送一次
                 var t = setInterval(function () {
-                    if (num == 1){
-                        // 如果num计时器为1，清除定时器对象
-                        clearInterval(t);
-                        $('.get_code').html('点击获取验证码');
+                    if(num==1){
+                        // 清楚定时器对象
+                        clearInterval(t)
+                        // 并将原来的内容放到原来的地方
+                        $('.get_code').html('点击获取验证码')
                         $('.get_code').attr('onclick','sendSMSCode()')
-                    }else{
-                        num -= 1;
-                        $('.get_code').html(num + '秒');
+                    }else {
+                        num = num -1
+                        $('.get_code').html(num+'秒')
                     }
                 },1000)
-            }else{
-                alert(response.errmsg);
-                // $('#register-sms-code-err').html(response.errmsg);
-                // $('#register-sms-code-err').show();
 
+            }else{
+                alter(response.errmsg)
+                // ---------------------------也可以将其放到前段的代码当中----------------------------
+                // $('.register-sms-code-err').html(response.errmsg)
+                // $('.register_sms_code_err').show();
             }
         }
     })
-
 }
 
 // 调用该函数模拟点击左侧按钮
