@@ -122,6 +122,10 @@ $(function () {
             type: 'post',
             data: JSON.stringify(params),
             contentType: "application/json",
+            headers: {
+                // 这个值每次请求浏览器,都会获取
+                'X-CSRFToken': getCookie('csrf_token')
+            },
             success: function (response) {
                 if (response.errno == '0') {
                     location.reload();
@@ -174,6 +178,10 @@ $(function () {
             type: 'post',
             data: JSON.stringify(params),
             contentType: 'application/json',
+            headers: {
+                // 这个值每次请求浏览器,都会获取
+                'X-CSRFToken': getCookie('csrf_token')
+            },
             success: function (resp) {
                 if (resp.errno == '0') {
                     location.reload()
@@ -229,6 +237,10 @@ function sendSMSCode() {
         // 转换对象成json格式
         data: JSON.stringify(params),
         contentType: 'application/json',
+        headers: {
+            // 这个值每次请求浏览器,都会获取
+            'X-CSRFToken': getCookie('csrf_token')
+        },
         success: function (response) {
             if (response.errno == '0') {
                 // 如果发送成功
