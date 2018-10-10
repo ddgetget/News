@@ -228,7 +228,7 @@ def login():
     # --------------------代码太low--------------------------
 
 
-    if user is None or  not user.check_password(password):
+    if user is None or not user.check_password(password):
         return jsonify(errno=RET.NODATA, errmsg='参数输入错误')
 
     # 记录用户的登陆时间
