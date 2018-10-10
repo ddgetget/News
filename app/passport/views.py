@@ -3,7 +3,7 @@
 # coding=utf-8
 # doc           PyCharm
 
-from flask import jsonify, request, current_app, make_response
+from flask import jsonify, request, current_app, make_response, session
 
 from app import rb, constants
 from app.static.captcha.captcha import captcha
@@ -14,6 +14,8 @@ from app.static.yuntongxun import sms
 
 from app.models import User
 
+from  app import db
+
 """
 generating scheme
 send message
@@ -22,6 +24,7 @@ login
 """
 
 
+# -----------------------------------图片验证码---------------------------------
 @passport.route('/image_code')
 def generate_image_code():
     """
@@ -60,6 +63,7 @@ def generate_image_code():
         return response
 
 
+# ------------------------------------发送短信----------------------------------
 @passport.route('/sms_code', methods=['POST'])
 def send_sms_code():
     """
@@ -101,12 +105,12 @@ def send_sms_code():
         user = User.session.filter_by(mobile=mobile).first()
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(errno=RET.DATAERR,errmsg='查询数据错误')
+        return jsonify(errno=RET.DATAERR, errmsg='查询数据错误')
     else:
         if user is not None:
-            return jsonify(errnp=RET.DATAEXIST,errmsg="用户名已注册")
+            return jsonify(errnp=RET.DATAEXIST, errmsg="用户名已注册")
 
-# build a number fo
+            # build a number fo
     # --------------------------------get a number like XXXXXX------------
     # In[1]:    import random
     # In[2]:    '%06d' % random.randint(0, 999999)
@@ -133,3 +137,54 @@ def send_sms_code():
         return jsonify(errno=RET.OK, errmsg='send is ok')
     else:
         return jsonify(errno=RET.THIRDERR, errmsg='send is wrong')
+
+
+# ------------------------------------注册--------------------------------------
+@passport.route('passport/register', methods=["PPOST"])
+def register():
+    mobile = request.json.get("mobile")
+    sms_code = request.json.get("sms_code")
+    password = request.json.get("password")
+
+    # 检查参数的完整性
+    if not all([mobile, sms_code, passport]):
+        return jsonify(errno=RET.DATAERR, errmsg='参数不完整')
+    # 检查手机号码格式
+    if not re.match(r'1[3456789]\d{9}$', mobile):
+        return jsonify(errno=RET.DATAERR, errmsg='手机格式不正确')
+    # 获取redis的针织短信的验证码
+    try:
+        real_sms_code = rb.get('SMSCode_' + mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DATAERR, errmsg="获取数据错误")
+    if not real_sms_code:
+        return jsonify(errno=RET.NODATA, errmsg='数据以过期')
+    # 比较短验证码是否一致
+    if real_sms_code != str(sms_code):
+        return jsonify(errnp=RET.DATAERR, errmsg='短信验证失败')
+    # 删除redis中存储的短信
+    try:
+        rb.delete('SMSCode_' + mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+
+    # 构造模型对象，存储用户信息
+    user = User()
+    user.mobile = mobile
+    user.nick_name = mobile
+    # 注意：这里不用加密的原因是。在模型类当中,使用了property,赋值的结果是加密过后的哦，很厉害的哦
+    # user.password=passport
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DATAERR, errmsg="保存用户信息失败")
+    # 这里需要缓存用户信息，保存刀片flask的seesion当中
+    session['user_id'] = user.id
+    session['mobile'] = mobile
+    session['nick_name'] = mobile
+    # 返回结果
+    return jsonify(errno=RET.OK, errmsg='ok')
