@@ -3,9 +3,10 @@
 # coding=utf-8
 # doc           PyCharm
 from . import news
-from flask import session, render_template, current_app
-from app.models import User
+from flask import session, render_template, current_app,jsonify
+from app.models import User,Category
 
+from app.static.util.response_code import RET
 
 @news.route('/')
 def index():
@@ -22,6 +23,22 @@ def index():
         except Exception as e:
             current_app.logger.error(e)
 
+    # 创建分类数据
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.NODATA,errmsg='擦讯查询分类数据失败')
+
+    category_list=[]
+    if not categories:
+        return jsonify(erron=RET.NODATA,errmsg='无新闻分类数据')
+
+    # 遍历查询结果
+    for category in categories:
+        category_list.append(category.to_dict())
+
+
     # 定义字典数据，返回模板
     data = {
         'user_info': user.to_dict() if user else None
@@ -37,3 +54,5 @@ def favico():
     # 2. 让浏览器车德系退出，重新启动
     # 3. 重新打开浏览器会有logo
     return current_app.send_static_file("news/favicon.ico")
+
+
