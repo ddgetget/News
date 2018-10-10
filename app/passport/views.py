@@ -188,3 +188,6 @@ def register():
     session['nick_name'] = mobile
     # 返回结果
     return jsonify(errno=RET.OK, errmsg='ok')
+
+
+# ----------------------------------------登陆----------------------------------
