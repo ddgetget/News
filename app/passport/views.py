@@ -16,6 +16,9 @@ from app.models import User
 
 from  app import db
 
+
+# 在登陆的时候使用到了last_loin_time,因此需要使用datatime
+from datetime import  datetime
 """
 generating scheme
 send message
@@ -191,3 +194,58 @@ def register():
 
 
 # ----------------------------------------登陆----------------------------------
+@passport.route('/logoin',methoids=["POST"])
+def login():
+    # 注意：用户的昵称可能发生变化
+    # session['nick_name']=mobile
+    # session['nick_name']=user.nick_name
+    # ------------------体会一下这两行代码的的异同
+
+
+    mobile =request.json.get('mobile')
+    password=request.json.get("password")
+
+    if not all([mobile,passport]):
+        return jsonify(errno=RET.DATAERR,errmsg='参数不完整')
+
+    if re.match(r'1[3456789]\d{9}$',mobile):
+        return jsonify(errnp=RET.DATAERR,errmsg='手机号码格式错误')
+
+    try:
+        user  =db.query().filter_by(mobile=mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DATAERR,errmsg='密码错误')
+
+
+    # ------------------代码太low----------------------------
+    # if not user:
+    #     return jsonify(errno=RET.NODATA,errmsg="用户不存在")
+    # # 判断密码是否正确
+    # if user.check_password(passport):
+    #     return jsonify(errno=RET.PWDERR,errmsg='密码错误')
+    # --------------------代码太low--------------------------
+
+
+    if user is None or user.check_password(password):
+        return jsonify(errno=RET.NODATA,errmsg='参数输入错误')
+
+    # 记录用户的登陆时间
+    user.last_login=datetime.now()
+
+    # 提交数据到数据库
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR,errmsg="保存数据错误")
+
+    # 缓存用户的信息
+    session['user_id']=user.id
+    session['mobile']=mobile
+    # 防止用户修改用户昵称，而缓存当中依然使用原来的nick_name
+    session['nick_name']=user.nick_name
+
+    return jsonify(errno=RET.OK,errmsg="ok")
