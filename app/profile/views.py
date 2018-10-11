@@ -3,15 +3,12 @@
 # coding=utf-8
 # doc           PyCharm
 
-from . import profile
-# 导入登陆装饰器
-
-from app.static.util.comments import login_required
-from flask import redirect, g, request, render_template, jsonify, current_app
-
-from app.static.util.response_code import RET
+from flask import redirect, g, request, render_template, jsonify, current_app,session
 
 from  app import db
+from app.static.util.comments import login_required
+from app.static.util.response_code import RET
+from . import profile
 
 
 @profile.route('/info', methods=['POST', 'GET'])
@@ -59,6 +56,7 @@ def base_info():
     user.signature = signature
     user.gender = gender
 
+
     try:
         db.session.add(user)
         db.session.commit()
@@ -66,5 +64,8 @@ def base_info():
         current_app.logger.error(e)
         db.session.rollback()
         return jsonify(errno=RET.DBERR, errmsg="数据保存错误")
-    
+
+    session['nick_name'] = nick_name
+
+    # 需要修改redis数据库
     return jsonify(errno=RET.OK, errmsg='ok')
