@@ -1,28 +1,22 @@
-# author        TuringEmmy 
-# createtime    18-10-8  下午12:17
-# coding=utf-8
-# doc           PyCharm
-
 from flask_script import Manager
-# 用于数据迁移
-from flask_migrate import Migrate, MigrateCommand
-from app import create_app, db
+from flask_migrate import Migrate,MigrateCommand
+# 导入程序实例,把模型类导入到启动文件中
+from info import create_app,db,models
 
-# 把模型导入其中
-from app import models
 
-# 调用工厂模式实例app
-app = create_app('develpoment')
+# 调用工厂函数，获取程序实例app
+app = create_app('development')
+
+# 实例化管理器对象
 manage = Manager(app)
-
 # 使用迁移框架
-Migrate(app, db)
+Migrate(app,db)
 # 添加迁移命令给管理器
-manage.add_command("db", MigrateCommand)
+manage.add_command('db',MigrateCommand)
+
 
 
 
 if __name__ == '__main__':
-    # app.run()
     print(app.url_map)
     manage.run()
