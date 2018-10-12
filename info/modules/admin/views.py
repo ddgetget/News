@@ -15,10 +15,12 @@ from info.utils.response_code import RET
 
 @admin_blue.route('/login', methods=["POST","GET"])
 def admin_login():
+
     if request.method == 'GET':
         return render_template('admin/login.html')
+
     # 获取登陆的参数
-    username = request.form.get('usrename')
+    username = request.form.get('username')
     password = request.form.get('password')
 
     # 校验3参数的完整性
