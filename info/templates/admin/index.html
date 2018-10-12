@@ -8,8 +8,6 @@
 	<script type="text/javascript" src="../../static/admin/js/jquery-1.12.4.min.js"></script>
 </head >
 <body>
-
-
 	<div class="header">
 		<a href="#" class="logo fl"><img src="../../static/admin/images/logo.png" alt="logo"></a>
 		<a href="#" class="logout fr">退 出</a>
@@ -17,8 +15,8 @@
 	
 	<div class="side_bar">
 		<div class="user_info">
-			<img src="../../static/admin/images/person.png" alt="张大山">
-			<p>欢迎你 <em>张大山</em></p>
+			<img src="../../static/admin/images/person.png" alt="{{ user.nick_name }}">
+			<p>欢迎你 <em>{{ user.nick_name }}</em></p>
 		</div>
 
 		<div class="menu_con">
