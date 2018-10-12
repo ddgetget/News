@@ -261,13 +261,17 @@ def login():
     # 返回结果
     return jsonify(errno=RET.OK,errmsg='OK')
 
-@passport_blue.route('/logout')
+@passport_blue.route('/logout',methods=["POST"])
 def logout():
     """退出登录"""
     # 从redis中清除缓存的用户信息
     session.pop('user_id',None)
     session.pop('mobile',None)
     session.pop('nick_name',None)
+
+    # 关于管理员的
+    session.pop('is_admin',None)
+
     return jsonify(errno=RET.OK,errmsg='OK')
 
 
