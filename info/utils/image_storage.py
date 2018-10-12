@@ -1,9 +1,9 @@
 from qiniu import Auth, put_data
 
-access_key = 'SmdtGrstU8mkcHcfLIpY-C_lHIa8brda55Qz4j30'
-secret_key = 'JWpOm6_E7cSgl_akYOVCSuiOs6JlqElRIaxx_JO7'
+access_key = '7nlkga0zSIdMv87xyegQ08rtlQ3NiziItpY0cB_O'
+secret_key = '4Tz2u9oS15doj2NN674qbxafv13Cj1S_hlncnKG1'
 
-bucket_name = 'info'
+bucket_name = 'news'
 
 
 def storage(data):
