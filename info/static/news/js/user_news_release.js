@@ -7,7 +7,8 @@ function getCookie(name) {
 $(function () {
 
     $(".release_form").submit(function (e) {
-        e.preventDefault()
+        e.preventDefault();
+        alert($('#rich_content').val())
 
         // 发布完毕之后需要选中我的发布新闻
 

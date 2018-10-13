@@ -156,21 +156,26 @@ def news_release():
     """
     user = g.user
     if request.method == 'GET':
+
         # 查询新闻分类数据
         try:
             category_list = Category.query.all()
         except Exception as e:
             current_app.logger.error(e)
             return jsonify(errno=RET.DBERR,errmsg='查询数据失败')
+
         # 判断查询结果
         if not category_list:
             return jsonify(errno=RET.NODATA,errmsg='无新闻数据')
+
         # 定义容器存储查询结果
         categoryies = []
         for category in category_list:
             categoryies.append(category.to_dict())
+
         # 移除最新分类
         categoryies.pop(0)
+
         data = {
             'categories':categoryies
         }
@@ -182,9 +187,14 @@ def news_release():
     digest = request.form.get('digest')
     index_image = request.files.get('index_image')
     content = request.form.get('content')
+
+
+    print(request.form)
+
+
     # 检查参数的完整性
-    if not all([title,category_id,digest,index_image,content]):
-        return jsonify(errno=RET.PARAMERR,errmsg='参数缺失')
+    # if not all([title,category_id,digest,index_image,content]):
+    #     return jsonify(errno=RET.PARAMERR,errmsg='参数缺失')
     # 检查新闻分类的数据类型
     try:
         category_id = int(category_id)
@@ -212,6 +222,11 @@ def news_release():
     news.digest = digest
     news.index_image_url = constants.QINIU_DOMIN_PREFIX + image_name
     news.content = content
+
+
+    print(news.content)
+
+
     news.status = 1
     # 提交数据
     try:
