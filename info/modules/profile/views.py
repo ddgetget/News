@@ -291,3 +291,55 @@ def pass_info():
 
 
 # -----------------------------用户收藏喀开始---------------------------
+@profile_blue.route('/news_list')
+@login_required
+def user_news_list():
+    """
+    新闻列表
+    1. 获取参数，页数，默认1
+    2. 判断参数，整形
+    3. 获取用户用户信息，定义容器存储查询结果，总页数默认1，当前页默认1
+    4. 查询数据库，查询新闻数据进行分页‘
+    5. 获取总页数，当前页，新闻数据u
+    6. 定义字典列表，遍历查询结果，添加到列表中
+    7. 返回模板new/user_news_list.html   'total_page. current_page, news_dict_list'
+    :return:
+    """
+
+    page = request.args.get('p', 1)
+
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    user = g.user
+    news_list =[]
+    current_page =1
+    total_page = 1
+
+    try:
+        paginate = News.query.filter(News.user_id==user.id).paginate(page,constants.USER_COLLECTION_MAX_NEWS,False)
+        news_list=paginate.items
+        current_page=paginate.page
+        total_page = paginate.pages
+
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR,errmsg='查询数据错误')
+
+    news_dict_list=[]
+
+    for news in news_list:
+        news_dict_list.append(news.to_review_dict())
+
+    # 准备数据
+    data ={
+        'news_list':news_dict_list,
+        'total_page':total_page,
+        'current_page':current_page
+    }
+
+    return render_template('news/user_news_list.html',data = data)
