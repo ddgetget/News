@@ -237,15 +237,13 @@ def news_review():
     page = request.args.get('p', 1)
 
     # 关键词搜索
-    keywords = request.args.get('keywords',"")
+    keywords = request.args.get('keywords', "")
 
     try:
         page = int(page)
     except Exception as e:
         current_app.logger.error(e)
         page = 1
-
-
 
     news_list = []
     current_page = 1
@@ -285,5 +283,4 @@ def news_review():
 
     return render_template('admin/news_review.html', data=data)
 
-
-# ----------------------------------新闻-------------------------------------------------------
+# ----------------------------------新闻审核详情------------------------------------------------------
