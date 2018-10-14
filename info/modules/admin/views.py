@@ -283,4 +283,38 @@ def news_review():
 
     return render_template('admin/news_review.html', data=data)
 
+
 # ----------------------------------新闻审核详情------------------------------------------------------
+@admin_blue.route('/news_review_detail')
+def news_review_detail():
+    """
+    新闻审核
+    :return:
+    """
+    news_id = request.args.get('news_id')
+
+    if not news_id:
+        return render_template('admin/news_review_detail.html', data={
+            'srrmsg': "未查询到次新闻"
+        })
+
+    # 通过新闻的id查询新闻
+    new = None
+
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg='查询数据失败')
+
+    if not news:
+        return render_template('admin/news_review_detail.html', data={
+            'errmsg': "未查询到此新闻"
+        })
+
+    # 返回数据
+    data = {
+        'news': news.to_dict()
+    }
+
+    return render_template('admin/news_review_detail.html', data=data)
