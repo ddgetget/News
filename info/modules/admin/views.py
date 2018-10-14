@@ -267,3 +267,6 @@ def news_review():
     }
 
     return render_template('admin/news_review.html', data=data)
+
+
+----------------------------------新闻
