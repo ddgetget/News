@@ -1,5 +1,6 @@
 from flask import Flask
 # 导入Config类，导入config_dict字典
+
 from config import Config, config_dict
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
@@ -10,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 from redis import StrictRedis
 
 # 先实例化sqlalchemy对象
+
 db = SQLAlchemy()
 # 实例化redis对象,用来实现存储和业务相关的数据
 redis_store = StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, decode_responses=True)
@@ -32,6 +34,18 @@ from flask_wtf import CSRFProtect, csrf
 # 定义工厂函数，实现动态的根据传入参数的不同，生产不同环境下的app
 def create_app(config_name):
     app = Flask(__name__)
+
+    # # 路由拦截404
+    # @app.error_handler(404)
+    # @login_required
+    # def page_not_found():
+    #     user = g.user
+    #     data = {
+    #         'user_info': user.to_dict() if user else None
+    #     }
+    #     return render_template('news/404.html', errmsg='参数不完整')
+    #     return app
+
 
     # 加载配置对象,接收工厂函数传入的参数
     app.config.from_object(config_dict[config_name])
@@ -69,3 +83,6 @@ def create_app(config_name):
     app.register_blueprint(admin_blue)
 
     return app
+
+
+
