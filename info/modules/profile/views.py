@@ -315,31 +315,78 @@ def user_news_list():
         page = 1
 
     user = g.user
-    news_list =[]
-    current_page =1
+    news_list = []
+    current_page = 1
     total_page = 1
 
     try:
-        paginate = News.query.filter(News.user_id==user.id).paginate(page,constants.USER_COLLECTION_MAX_NEWS,False)
-        news_list=paginate.items
-        current_page=paginate.page
+        paginate = News.query.filter(News.user_id == user.id).paginate(page, constants.USER_COLLECTION_MAX_NEWS, False)
+        news_list = paginate.items
+        current_page = paginate.page
         total_page = paginate.pages
 
     except Exception as e:
         current_app.logger.error(e)
         db.session.rollback()
-        return jsonify(errno=RET.DBERR,errmsg='查询数据错误')
+        return jsonify(errno=RET.DBERR, errmsg='查询数据错误')
 
-    news_dict_list=[]
+    news_dict_list = []
 
     for news in news_list:
         news_dict_list.append(news.to_review_dict())
 
     # 准备数据
-    data ={
-        'news_list':news_dict_list,
-        'total_page':total_page,
-        'current_page':current_page
+    data = {
+        'news_list': news_dict_list,
+        'total_page': total_page,
+        'current_page': current_page
     }
 
-    return render_template('news/user_news_list.html',data = data)
+    return render_template('news/user_news_list.html', data=data)
+
+
+# ------------------------------用户收藏-----------------------------------
+@profile_blue.route('/collection')
+@login_required
+def user_collection():
+    # 获取页数
+    p = request.args.get('p', 1)
+
+    try:
+        p = int(p)
+    except Exception as e:
+        current_app.logger.error(e)
+        p = 1
+
+    user = g.user
+    collections = []
+    current_page = 1
+    total_page = 1
+
+    try:
+        # 分页数据查询
+        paginate = user.collection_news.paginate(p, constants.USER_COLLECTION_MAX_NEWS, False)
+        # 获取分页数据
+        collections = paginate.items
+        # 获取当前页
+        current_page = paginate.page
+        # 获取总页数
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR, errmsg='保存数据失败')
+
+    # 收藏列表
+    collection_dict_list = []
+
+    for news in collections:
+        collection_dict_list.append(news.to_basic_dict())
+
+    data = {
+        "total_page": total_page,
+        "current_page": current_page,
+        "collections": collection_dict_list
+    }
+
+    return render_template('news/user_collection.html', data=data)
