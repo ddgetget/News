@@ -236,11 +236,16 @@ def news_review():
 
     page = request.args.get('p', 1)
 
+    # 关键词搜索
+    keywords = request.args.get('keywords',"")
+
     try:
         page = int(page)
     except Exception as e:
         current_app.logger.error(e)
         page = 1
+
+
 
     news_list = []
     current_page = 1
@@ -252,6 +257,18 @@ def news_review():
         ).order_by(
             News.create_time.desc()
         ).paginate(page, constants.ADMIN_NEWS_PAGE_MAX_COUNT, False)
+
+        filters = [News.status != 0]
+        if keywords:
+            # 添加关键词到检索选项
+            filters.append(News.title.contains(keywords))
+
+            # 查询
+            paginate = News.query.filter(
+                *filters
+            ).order_by(
+                News.create_time.desc()
+            ).paginate(page, constants.ADMIN_NEWS_PAGE_MAX_COUNT, False)
 
         news_list = paginate.items
         current_page = paginate.page
@@ -269,4 +286,4 @@ def news_review():
     return render_template('admin/news_review.html', data=data)
 
 
-----------------------------------新闻
+# ----------------------------------新闻-------------------------------------------------------
